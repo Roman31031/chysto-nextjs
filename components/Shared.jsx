@@ -9,7 +9,8 @@ import {
   Lightbulb, BookOpen, Info, Instagram, Facebook, Gift, Mail
 } from "lucide-react";
 import {
-  C, SERVICES, DISTRICTS, SERVICE_DETAILS, ARTICLES_CONTENT, ADDONS,
+  C, display, body, mono, HERO_BG, COIL_TILE, dotPattern, SERVICE_THEME,
+  SERVICES, DISTRICTS, SERVICE_DETAILS, ARTICLES_CONTENT, ARTICLE_TITLE_TO_ROUTE, ADDONS,
   WINDOW_ADDON_RATE, MIN_ORDER, FAQ, CATEGORY_META, WORK_PHOTOS,
   CERT_PREVIEWS, rateForLevel, detailsFor,
 } from "../lib/data";
