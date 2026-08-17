@@ -1039,4 +1039,3 @@ export function OrderModal({ open, onClose }) {
     </div>
   );
 }
-
