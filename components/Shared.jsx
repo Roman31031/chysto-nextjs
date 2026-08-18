@@ -136,6 +136,16 @@ export function RoomChecklist({ rooms }) {
   );
 }
 
+function makeSpots(count, seed) {
+  return Array.from({ length: count }).map((_, i) => ({
+    left: ((i * seed + 17) % 90) + 3,
+    top: ((i * (seed + 11) + 9) % 78) + 4,
+    delay: (i * 0.55) % 4.5,
+    dur: 3.2 + ((i * 7) % 5) * 0.5,
+    scale: 0.6 + ((i * 13) % 6) * 0.1,
+  }));
+}
+
 export function ServiceBackdrop({ variant }) {
   if (variant === "generalne") {
     const spots = makeSpots(9, 41);
