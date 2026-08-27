@@ -1,1 +1,1070 @@
+"use client";
+import React, { useState, useMemo, useEffect, createContext, useContext } from "react";
+import { useRouter, usePathname } from "next/navigation";
+import Link from "next/link";
+import {
+  Sparkles, CheckCircle2, Phone, MapPin, Star, Home as HomeIcon,
+  Building2, Sofa, Droplets, ChevronRight, ChevronDown, Menu, X,
+  ArrowRight, Wind, Calculator, MessageCircle, ShieldCheck, Clock,
+  Lightbulb, BookOpen, Info, Instagram, Facebook, Gift, Mail
+} from "lucide-react";
+import {
+  C, display, body, mono, HERO_BG, COIL_TILE, dotPattern, SERVICE_THEME,
+  SERVICES, DISTRICTS, SERVICE_DETAILS, ARTICLES_CONTENT, ARTICLE_TITLE_TO_ROUTE, ADDONS,
+  WINDOW_ADDON_RATE, MIN_ORDER, FAQ, CATEGORY_META, WORK_PHOTOS,
+  CERT_PREVIEWS, rateForLevel, detailsFor,
+} from "../lib/data";
+import { ROUTE_PATH } from "../lib/routes";
 
+export function useNavigate() {
+  const router = useRouter();
+  return (id) => router.push(ROUTE_PATH[id] || "/");
+}
+
+const OrderModalContext = createContext(() => {});
+
+export function useOrderModal() {
+  return useContext(OrderModalContext);
+}
+
+export function OrderModalProvider({ children }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <OrderModalContext.Provider value={() => setOpen(true)}>
+      {children}
+      <OrderModal open={open} onClose={() => setOpen(false)} />
+    </OrderModalContext.Provider>
+  );
+}
+
+export function Chip({ children }) {
+  return <span className="px-3 py-1.5 rounded-full text-sm font-medium" style={{ ...body, background: C.mintSoft, color: C.inkSoft }}>{children}</span>;
+}
+
+export function CornerFlourish({ flip }) {
+  return (
+    <svg width="46" height="46" viewBox="0 0 46 46" fill="none" style={{ transform: flip ? "rotate(180deg)" : "none" }}>
+      <path d="M2 20 V2 H20" stroke={C.mint} strokeWidth="1.5" strokeLinecap="round" fill="none" />
+      <circle cx="2" cy="2" r="2.75" fill={C.lemon} />
+      <path d="M26 2 C35 2 35 11 30 13 C25 15 25 8 30 8" stroke={C.mint} strokeWidth="1.2" strokeLinecap="round" fill="none" />
+    </svg>
+  );
+}
+
+export function VyshyvankaStrip({ id, height = 18 }) {
+  return (
+    <svg width="100%" height={height} viewBox={`0 0 16 ${height}`} preserveAspectRatio="none" style={{ display: "block" }}>
+      <defs>
+        <pattern id={id} width="16" height={height} patternUnits="userSpaceOnUse">
+          <rect x="0" y="0" width="8" height="3" fill={C.ink} />
+          <rect x="8" y="0" width="8" height="3" fill={C.mint} />
+          <rect x="0" y={height - 3} width="8" height="3" fill={C.mint} />
+          <rect x="8" y={height - 3} width="8" height="3" fill={C.ink} />
+          <path d={`M8 ${height * 0.28} L11.5 ${height * 0.5} L8 ${height * 0.72} L4.5 ${height * 0.5} Z`} fill={C.mint} />
+          <path d={`M8 ${height * 0.4} L9.4 ${height * 0.5} L8 ${height * 0.6} L6.6 ${height * 0.5} Z`} fill={C.lemon} />
+        </pattern>
+      </defs>
+      <rect width="100%" height={height} fill={`url(#${id})`} />
+    </svg>
+  );
+}
+
+export function DecorativeFrame({ children }) {
+  const dotPattern = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='34' height='34'%3E%3Ccircle cx='2' cy='2' r='1.3' fill='%237FB8A6' fill-opacity='0.3'/%3E%3C/svg%3E";
+  return (
+    <div className="relative rounded-2xl overflow-hidden" style={{ border: `1px solid ${C.bgSoft}` }}>
+      <VyshyvankaStrip id="vysh-top" height={16} />
+      <div
+        className="p-6 sm:p-8"
+        style={{ background: `${C.white} url("${dotPattern}") 0 0/34px 34px repeat` }}
+      >
+        {children}
+      </div>
+      <VyshyvankaStrip id="vysh-bottom" height={16} />
+    </div>
+  );
+}
+
+export function RoomChecklist({ rooms }) {
+  const [active, setActive] = useState(0);
+  const [dir, setDir] = useState(1);
+  const touchX = React.useRef(null);
+  const room = rooms[active];
+
+  const goTo = (i, direction) => {
+    if (i < 0 || i >= rooms.length) return;
+    setDir(direction);
+    setActive(i);
+  };
+
+  const onTouchStart = (e) => { touchX.current = e.touches[0].clientX; };
+  const onTouchEnd = (e) => {
+    if (touchX.current === null) return;
+    const delta = e.changedTouches[0].clientX - touchX.current;
+    const THRESHOLD = 45;
+    if (delta <= -THRESHOLD) goTo(active + 1, 1);      // swiped left -> next room
+    else if (delta >= THRESHOLD) goTo(active - 1, -1);  // swiped right -> previous room
+    touchX.current = null;
+  };
+
+  return (
+    <div>
+      <div className="flex gap-2 mb-4 overflow-x-auto no-scrollbar -mx-5 px-5 sm:mx-0 sm:px-0">
+        {rooms.map((r, i) => (
+          <button
+            key={r.room}
+            onClick={() => goTo(i, i > active ? 1 : -1)}
+            className="px-4 py-2 rounded-full text-sm font-semibold flex items-center gap-1.5 flex-shrink-0 whitespace-nowrap"
+            style={{ ...body, background: active === i ? C.ink : C.bgSoft, color: active === i ? C.bg : C.ink }}
+          >
+            <span>{r.emoji}</span> {r.room}
+          </button>
+        ))}
+      </div>
+
+      <div className="flex items-center justify-center gap-1.5 mb-4 sm:hidden">
+        {rooms.map((r, i) => (
+          <span key={r.room} className="rounded-full transition-all" style={{ width: active === i ? 16 : 6, height: 6, background: active === i ? C.iconVivid : C.bgSoft }} />
+        ))}
+      </div>
+
+      <DecorativeFrame>
+        <div
+          onTouchStart={onTouchStart}
+          onTouchEnd={onTouchEnd}
+          className="relative overflow-hidden"
+        >
+          <div key={active} className="swipe-panel grid sm:grid-cols-2 gap-x-6 gap-y-2.5" style={{ "--swipe-from": dir > 0 ? "24px" : "-24px" }}>
+            {room.items.map((item) => (
+              <div key={item} className="flex items-start gap-2">
+                <CheckCircle2 size={16} color={C.iconVivid} strokeWidth={2.25} className="mt-0.5 flex-shrink-0" />
+                <span className="text-sm" style={{ ...body, color: C.inkSoft }}>{item}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </DecorativeFrame>
+
+      <p className="text-xs mt-4 flex items-center gap-1.5 sm:hidden" style={{ ...body, color: C.ash }}>
+        <ArrowRight size={13} strokeWidth={2.25} /> гортайте вліво/вправо, щоб перемкнути кімнату
+      </p>
+    </div>
+  );
+}
+
+function makeSpots(count, seed) {
+  return Array.from({ length: count }).map((_, i) => ({
+    left: ((i * seed + 17) % 90) + 3,
+    top: ((i * (seed + 11) + 9) % 78) + 4,
+    delay: (i * 0.55) % 4.5,
+    dur: 3.2 + ((i * 7) % 5) * 0.5,
+    scale: 0.6 + ((i * 13) % 6) * 0.1,
+  }));
+}
+
+export function ServiceBackdrop({ variant }) {
+  if (variant === "generalne") {
+    const spots = makeSpots(9, 41);
+    return (
+      <div className="absolute inset-0 overflow-hidden pointer-events-none" aria-hidden="true">
+        {spots.map((s, i) => (
+          <svg key={i} className="fade-pulse" viewBox="0 0 24 24" width={22 * s.scale} height={22 * s.scale}
+            style={{ position: "absolute", left: `${s.left}%`, top: `${s.top}%`, animationDelay: `${s.delay}s`, animationDuration: `${s.dur}s` }}>
+            <g stroke="#8FCBEA" strokeWidth="1.6" strokeLinecap="round">
+              <line x1="12" y1="1" x2="12" y2="23" /><line x1="1" y1="12" x2="23" y2="12" />
+              <line x1="4" y1="4" x2="20" y2="20" /><line x1="20" y1="4" x2="4" y2="20" />
+            </g>
+          </svg>
+        ))}
+      </div>
+    );
+  }
+  if (variant === "vikna") {
+    const spots = makeSpots(10, 53);
+    return (
+      <div className="absolute inset-0 overflow-hidden pointer-events-none" aria-hidden="true">
+        {spots.map((s, i) => (
+          <svg key={i} className="fade-pulse" viewBox="0 0 24 28" width={15 * s.scale} height={19 * s.scale}
+            style={{ position: "absolute", left: `${s.left}%`, top: `${s.top}%`, animationDelay: `${s.delay}s`, animationDuration: `${s.dur}s` }}>
+            <path d="M12 1 C17 9 20 14 20 18 A8 8 0 1 1 4 18 C4 14 7 9 12 1 Z" fill="#2FA9C4" opacity="0.85" />
+            <ellipse cx="9.2" cy="16" rx="1.6" ry="2.2" fill="#FFFFFF" opacity="0.55" />
+          </svg>
+        ))}
+      </div>
+    );
+  }
+  if (variant === "remont") {
+    const spots = makeSpots(7, 67);
+    const colors = ["#F2BE22", "#2E9B7D", "#E8703C"];
+    return (
+      <div className="absolute inset-0 overflow-hidden pointer-events-none" aria-hidden="true">
+        {spots.map((s, i) => (
+          <svg key={i} className="fade-pulse" viewBox="0 0 40 40" width={28 * s.scale} height={28 * s.scale}
+            style={{ position: "absolute", left: `${s.left}%`, top: `${s.top}%`, animationDelay: `${s.delay}s`, animationDuration: `${s.dur}s` }}>
+            <g stroke={colors[i % colors.length]} strokeWidth="2" strokeLinecap="round">
+              {[...Array(8)].map((_, k) => {
+                const ang = (k / 8) * Math.PI * 2;
+                const x1 = 20 + Math.cos(ang) * 6, y1 = 20 + Math.sin(ang) * 6;
+                const x2 = 20 + Math.cos(ang) * 16, y2 = 20 + Math.sin(ang) * 16;
+                return <line key={k} x1={x1} y1={y1} x2={x2} y2={y2} />;
+              })}
+            </g>
+            <circle cx="20" cy="20" r="3" fill={colors[i % colors.length]} />
+          </svg>
+        ))}
+      </div>
+    );
+  }
+  if (variant === "kvartyra") {
+    return (
+      <div className="absolute inset-0 overflow-hidden pointer-events-none" aria-hidden="true">
+        {[0, 1, 2, 3].map((row) => (
+          <svg key={row} className="wave-drift" viewBox="0 0 400 40" preserveAspectRatio="none"
+            style={{ position: "absolute", left: 0, top: `${16 + row * 20}%`, width: "220%", height: 26,
+                     animationDelay: `${row * 1.3}s`, animationDuration: `${9 + row * 2}s`, opacity: 0.4 - row * 0.06 }}>
+            <path d="M0 20 Q 25 5 50 20 T 100 20 T 150 20 T 200 20 T 250 20 T 300 20 T 350 20 T 400 20"
+                  fill="none" stroke="#2E86A0" strokeWidth="3" strokeLinecap="round" />
+          </svg>
+        ))}
+      </div>
+    );
+  }
+  if (variant === "ofis") {
+    return (
+      <div className="absolute inset-0 overflow-hidden pointer-events-none" aria-hidden="true">
+        <svg className="sun-rotate" viewBox="0 0 200 200"
+          style={{ position: "absolute", right: "-8%", top: "-16%", width: 260, height: 260, opacity: 0.55 }}>
+          <g stroke="#E0952E" strokeWidth="4" strokeLinecap="round">
+            {[...Array(12)].map((_, k) => {
+              const ang = (k / 12) * Math.PI * 2;
+              const x1 = 100 + Math.cos(ang) * 55, y1 = 100 + Math.sin(ang) * 55;
+              const x2 = 100 + Math.cos(ang) * 95, y2 = 100 + Math.sin(ang) * 95;
+              return <line key={k} x1={x1} y1={y1} x2={x2} y2={y2} />;
+            })}
+          </g>
+          <circle cx="100" cy="100" r="42" fill="#F2BE22" opacity="0.9" />
+        </svg>
+      </div>
+    );
+  }
+  if (variant === "mebli") {
+    const stars = makeSpots(16, 31);
+    return (
+      <div className="absolute inset-0 overflow-hidden pointer-events-none" aria-hidden="true">
+        <svg viewBox="0 0 100 100" style={{ position: "absolute", left: "6%", top: "14%", width: 84, height: 84, opacity: 0.95 }}>
+          <path d="M62 8 A38 38 0 1 0 62 92 A30 30 0 1 1 62 8 Z" fill="#EDE8FA" />
+        </svg>
+        {stars.map((s, i) => (
+          <svg key={i} className="fade-pulse" viewBox="0 0 10 10" width={4 + (i % 3) * 2} height={4 + (i % 3) * 2}
+            style={{ position: "absolute", left: `${s.left}%`, top: `${s.top}%`, animationDelay: `${s.delay}s`, animationDuration: `${s.dur}s` }}>
+            <circle cx="5" cy="5" r="4" fill="#FFFFFF" />
+          </svg>
+        ))}
+      </div>
+    );
+  }
+  return null;
+}
+
+export function LogoMark({ size = 36 }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 128 128" role="img" aria-label="чисто.">
+      <defs>
+        <clipPath id="logoSquircle">
+          <rect x="0" y="0" width="128" height="128" rx="30" />
+        </clipPath>
+      </defs>
+      <g clipPath="url(#logoSquircle)">
+        <rect x="0" y="0" width="128" height="128" fill={C.ink} />
+        <polygon points="128,0 128,128 0,128" fill={C.mint} />
+        <polygon points="8,8 60,8 8,60" fill={C.inkSoft} />
+        <path d="M89 33 L94 44 L105 49 L94 54 L89 65 L84 54 L73 49 L84 44 Z" fill={C.lemon} />
+      </g>
+    </svg>
+  );
+}
+
+export function NavBar({ route }) {
+  const onOrderClick = useOrderModal();
+  const navigate = useNavigate();
+  const [open, setOpen] = useState(false);
+  return (
+    <header className="sticky top-0 z-30" style={{ background: `${C.bg}E6`, backdropFilter: "blur(8px)", borderBottom: `1px solid ${C.bgSoft}` }}>
+      <div className="max-w-6xl mx-auto px-5 sm:px-8 h-16 flex items-center justify-between">
+        <button onClick={() => navigate("home")} className="flex items-center gap-2">
+          <LogoMark size={38} />
+          <span className="text-xl tracking-tight whitespace-nowrap" style={{ ...display, color: C.ink, fontWeight: 600 }}>чисто<span style={{ color: C.lemonDeep }}>.</span></span>
+        </button>
+        <span className="hidden lg:block text-xs font-semibold uppercase tracking-widest whitespace-nowrap" style={{ ...body, color: C.mint }}>Клінінг Миколаїв</span>
+        <nav className="hidden md:flex items-center gap-6" style={body}>
+          <button onClick={() => navigate("home")} className="text-sm font-medium whitespace-nowrap" style={{ color: route === "home" ? C.ink : C.ash }}>Головна</button>
+          <button onClick={() => navigate("generalne")} className="text-sm font-medium whitespace-nowrap" style={{ color: route !== "home" ? C.ink : C.ash }}>Послуги</button>
+          <span className="text-sm font-medium whitespace-nowrap" style={{ color: C.ash }}>Райони</span>
+          <span className="text-sm font-medium whitespace-nowrap" style={{ color: C.ash }}>Відгуки</span>
+        </nav>
+        <div className="flex items-center gap-2">
+          <a
+            href="tel:+380731164239"
+            className="hidden xl:flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-semibold whitespace-nowrap"
+            style={{ ...body, background: C.mint, color: C.white }}
+          >
+            <Phone size={15} strokeWidth={2.25} /> 073 116 42 39
+          </a>
+          <button onClick={onOrderClick} className="px-4 py-2 rounded-full text-sm font-semibold flex items-center gap-1.5 whitespace-nowrap" style={{ ...body, background: C.ink, color: C.bg }}>
+            <MessageCircle size={15} strokeWidth={2.25} /> Замовити онлайн
+          </button>
+          <button className="md:hidden flex-shrink-0" onClick={() => setOpen(!open)} aria-label="Меню">{open ? <X size={22} color={C.ink} /> : <Menu size={22} color={C.ink} />}</button>
+        </div>
+      </div>
+      {open && (
+        <div className="md:hidden px-5 pb-4 flex flex-col gap-3" style={body}>
+          <button className="text-left text-sm font-medium" onClick={() => { navigate("home"); setOpen(false); }} style={{ color: C.ink }}>Головна</button>
+          {SERVICES.map((s) => <button key={s.id} className="text-left text-sm font-medium" onClick={() => { navigate(s.id); setOpen(false); }} style={{ color: C.ink }}>{s.name}</button>)}
+        </div>
+      )}
+    </header>
+  );
+}
+
+export function ProcessSteps({ onOrderClick }) {
+  const steps = [
+    { n: "01", t: "Заявка", d: "Лишаєте площу й адресу — калькулятор одразу покаже орієнтовну ціну", clickable: true },
+    { n: "02", t: "Огляд і підтвердження", d: "Майстер оглядає об'єкт і озвучує фінальну суму до початку робіт" },
+    { n: "03", t: "Прибирання", d: "Працюємо за чек-листом послуги, свій інвентар та хімія" },
+    { n: "04", t: "Перевірка", d: "Проходимо приміщення разом, підписуєте акт" },
+  ];
+  return (
+    <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
+      {steps.map((s, i) => {
+        const Wrapper = s.clickable ? "button" : "div";
+        return (
+          <Wrapper
+            key={s.n}
+            onClick={s.clickable ? onOrderClick : undefined}
+            className={`checklist-item p-5 rounded-xl text-left w-full transition-transform ${s.clickable ? "hover:-translate-y-1 cursor-pointer" : ""}`}
+            style={{ background: C.white, animationDelay: `${i * 0.08}s` }}
+          >
+            <div className="flex items-center gap-2 mb-3"><span style={{ ...mono, color: C.mint, fontSize: 13 }}>{s.n}</span><CheckCircle2 size={16} color={C.iconVivid} strokeWidth={2.25} /></div>
+            <h4 className="text-lg mb-1 flex items-center gap-2" style={{ ...display, color: C.ink, fontWeight: 600 }}>
+              {s.t}
+              {s.clickable && <ArrowRight size={15} color={C.iconVivid} strokeWidth={2.25} />}
+            </h4>
+            <p className="text-sm" style={{ ...body, color: C.ash }}>{s.d}</p>
+          </Wrapper>
+        );
+      })}
+    </div>
+  );
+}
+
+export function HomePage() {
+  const onOrderClick = useOrderModal();
+  const navigate = useNavigate();
+  return (
+    <div>
+      <div style={
+{ backgroundImage: `url(${HERO_BG})`, backgroundSize: "cover", backgroundPosition: "right center", backgroundColor: C.bg }}>
+        <section className="max-w-6xl mx-auto px-5 sm:px-8 pt-16 pb-16" style={{ minHeight: 420 }}>
+          <div className="min-w-0 max-w-2xl">
+            <div className="flex items-center flex-wrap gap-x-4 gap-y-2 mb-5">
+              <div className="flex items-center gap-2"><MapPin size={16} color={C.iconVivid} strokeWidth={2.25} /><span className="text-sm font-semibold tracking-wide uppercase" style={{ ...body, color: C.mint }}>Миколаїв та область</span></div>
+              <div className="flex items-center gap-2"><ShieldCheck size={16} color={C.iconVivid} strokeWidth={2.25} /><span className="text-sm font-semibold tracking-wide uppercase" style={{ ...body, color: C.mint }}>5+ років досвіду в клінінгу</span></div>
+            </div>
+            <h1 className="text-4xl sm:text-5xl leading-[1.08] mb-5" style={{ ...display, color: C.ink, fontWeight: 600 }}>Чистота, яку видно ще з порогу</h1>
+            <p className="text-lg mb-3" style={{ ...body, color: C.inkSoft }}>«чисто.» — клінінгова компанія в Миколаєві. Замовити прибирання квартири, будинку чи офісу можна за чітким чек-листом, з розрахунком ціни онлайн.</p>
+          </div>
+        </section>
+      </div>
+
+      <section className="max-w-6xl mx-auto px-5 sm:px-8 py-14" style={{ background: C.bg, ...dotPattern(C.mint, 0.06) }}>
+        <div className="flex items-end justify-between mb-8">
+          <h2 className="text-3xl" style={{ ...display, color: C.ink, fontWeight: 600 }}>Що прибираємо</h2>
+          <span className="text-sm hidden sm:block" style={{ ...body, color: C.ash }}>натисніть на послугу — відкриється її сторінка</span>
+        </div>
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+          {SERVICES.map((s) => {
+            const Icon = s.icon;
+            return (
+              <button key={s.id} onClick={() => navigate(s.id)} className="text-left p-6 rounded-xl group transition-transform hover:-translate-y-1" style={{ background: C.white }}>
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: C.mint }}><Icon size={22} color={C.white} strokeWidth={2.25} /></div>
+                  <h3 className="text-xl" style={{ ...display, color: C.ink, fontWeight: 600 }}>{s.name}</h3>
+                </div>
+                <p className="text-sm mb-4" style={{ ...body, color: C.ash }}>{s.desc}</p>
+                <div className="flex items-center justify-between"><span style={{ ...mono, color: C.inkSoft, fontSize: 13 }}>{s.priceOnRequest ? "ціна договірна" : `${s.rateMin}–${s.rateMax} ₴/${s.unit}`}</span><ChevronRight size={16} color={C.iconVivid} strokeWidth={2.25} className="group-hover:translate-x-1 transition-transform" /></div>
+              </button>
+            );
+          })}
+        </div>
+      </section>
+
+      <SpringDivider />
+
+      <section className="py-14" style={{ background: C.bgSoft, ...dotPattern(C.mint, 0.07) }}><div className="max-w-6xl mx-auto px-5 sm:px-8"><h2 className="text-3xl mb-8" style={{ ...display, color: C.ink, fontWeight: 600 }}>Як проходить виїзд</h2><ProcessSteps onOrderClick={onOrderClick} /></div></section>
+
+      <SpringDivider />
+
+      <section className="max-w-6xl mx-auto px-5 sm:px-8 py-14" style={{ background: C.bg, ...dotPattern(C.lemon, 0.06) }}>
+        <h2 className="text-3xl mb-2" style={{ ...display, color: C.ink, fontWeight: 600 }}>Працюємо у вашому районі</h2>
+        <p className="text-sm mb-6" style={{ ...body, color: C.ash }}>Виїжджаємо по всьому місту й найближчих передмістях</p>
+        <div className="flex flex-wrap gap-2.5">{DISTRICTS.map((d) => <Chip key={d}>{d}</Chip>)}</div>
+      </section>
+
+      <GiftCertificateSection />
+
+      <SpringDivider />
+      <CtaBand />
+    </div>
+  );
+}
+
+export function PriceOnRequestCard() {
+  return (
+    <div className="rounded-2xl overflow-hidden" style={{ background: C.white }}>
+      <div className="p-6 pb-4 flex items-center gap-2" style={{ background: C.ink }}>
+        <Info size={18} color={C.lemon} strokeWidth={2.25} />
+        <span className="text-sm font-semibold" style={{ ...body, color: C.bg }}>Вартість договірна</span>
+      </div>
+      <div className="p-6">
+        <p className="text-sm mb-4" style={{ ...body, color: C.inkSoft }}>
+          Вартість хімчистки залежить від обсягу роботи (кількість і розмір меблів) та ступеня забрудненості —
+          тому точну ціну майстер називає після огляду чи фотографій, які ви надішлете.
+        </p>
+        <div className="flex items-start gap-2 mb-2.5">
+          <CheckCircle2 size={16} color={C.iconVivid} strokeWidth={2.25} className="mt-0.5 flex-shrink-0" />
+          <span className="text-sm" style={{ ...body, color: C.inkSoft }}>Обсяг: одна річ чи весь комплект меблів</span>
+        </div>
+        <div className="flex items-start gap-2 mb-6">
+          <CheckCircle2 size={16} color={C.iconVivid} strokeWidth={2.25} className="mt-0.5 flex-shrink-0" />
+          <span className="text-sm" style={{ ...body, color: C.inkSoft }}>Ступінь забрудненості та тип тканини</span>
+        </div>
+        <button className="w-full py-3.5 rounded-full text-sm font-semibold" style={{ ...body, background: C.ink, color: C.bg }}>
+          Надіслати фото й дізнатись ціну
+        </button>
+        <p className="text-xs text-center mt-3" style={{ ...body, color: C.ash }}>Відповімо з орієнтовною ціною протягом 15 хвилин</p>
+      </div>
+    </div>
+  );
+}
+
+export function ReceiptCalculator({ serviceId }) {
+  const service = SERVICES.find((s) => s.id === serviceId) || SERVICES[0];
+  const [area, setArea] = useState(service.areaDefault);
+  const [level, setLevel] = useState(3);
+  const [addons, setAddons] = useState([]);
+  const [windowArea, setWindowArea] = useState(0);
+
+  useEffect(() => {
+    setArea(service.areaDefault);
+    setLevel(3);
+    setAddons([]);
+    setWindowArea(0);
+  }, [serviceId]);
+
+  const toggleAddon = (id) => setAddons((a) => (a.includes(id) ? a.filter((x) => x !== id) : [...a, id]));
+  const showWindowSlider = serviceId !== "vikna";
+
+  const calc = useMemo(() => {
+    const rate = rateForLevel(service, level);
+    const raw = Math.round(area * rate);
+    const base = Math.max(MIN_ORDER, raw);
+    const addonsSum = addons.reduce((sum, id) => sum + (ADDONS.find((a) => a.id === id)?.price || 0), 0);
+    const windowsSum = showWindowSlider ? Math.round(windowArea * WINDOW_ADDON_RATE) : 0;
+    const total = base + addonsSum + windowsSum;
+    return { rate, raw, base, addonsSum, windowsSum, total, isMinApplied: raw < MIN_ORDER };
+  }, [service, area, level, addons, windowArea, showWindowSlider]);
+
+  return (
+    <div className="rounded-2xl overflow-hidden" style={{ background: C.white }}>
+      <div className="p-6 pb-4 flex items-center gap-2" style={{ background: C.ink }}><Calculator size={18} color={C.lemon} strokeWidth={2.25} /><span className="text-sm font-semibold" style={{ ...body, color: C.bg }}>Орієнтовний розрахунок</span></div>
+      <div className="p-6">
+        <label className="flex justify-between text-xs uppercase tracking-wide mb-2" style={{ ...body, color: C.ash }}><span>Площа</span><span style={mono}>{area} {service.unit}</span></label>
+        <input type="range" min={service.areaMin} max={service.areaMax} value={area} onChange={(e) => setArea(Number(e.target.value))} className="range-slider w-full mb-6" />
+        <label className="block text-xs uppercase tracking-wide mb-2" style={{ ...body, color: C.ash }}>Оцініть ступінь забруднення (1 — легке, 5 — сильне)</label>
+        <div className="flex gap-2 mb-6">
+          {[1, 2, 3, 4, 5].map((lv) => (
+            <button key={lv} onClick={() => setLevel(lv)} className="flex-1 py-2.5 rounded-lg text-sm font-semibold" style={{ ...mono, background: level === lv ? C.lemon : C.bgSoft, color: C.ink }}>{lv}</button>
+          ))}
+        </div>
+        <label className="block text-xs uppercase tracking-wide mb-2" style={{ ...body, color: C.ash }}>Додаткові послуги (за потреби)</label>
+        <div className="flex flex-col gap-1.5 mb-2">
+          {ADDONS.map((a) => (
+            <label key={a.id} className="flex items-center justify-between px-3 py-2 rounded-lg cursor-pointer" style={{ background: addons.includes(a.id) ? C.mintSoft : C.bgSoft }}>
+              <span className="flex items-center gap-2 text-sm" style={{ ...body, color: C.ink }}>
+                <input type="checkbox" checked={addons.includes(a.id)} onChange={() => toggleAddon(a.id)} className="w-4 h-4" style={{ accentColor: C.mint }} />
+                {a.label}
+              </span>
+              <span style={{ ...mono, fontSize: 13, color: C.inkSoft }}>+{a.price} ₴</span>
+            </label>
+          ))}
+        </div>
+        {showWindowSlider && (
+          <>
+            <label className="flex justify-between text-xs uppercase tracking-wide mb-2 mt-4" style={{ ...body, color: C.ash }}><span>Миття вікон (додатково)</span><span style={mono}>{windowArea} м²</span></label>
+            <input type="range" min={0} max={30} value={windowArea} onChange={(e) => setWindowArea(Number(e.target.value))} className="range-slider w-full mb-1" />
+            <p className="text-xs mb-2" style={{ ...body, color: C.ash }}>{WINDOW_ADDON_RATE} ₴/м² скління (рама, відкоси, скло без розводів)</p>
+          </>
+        )}
+        <p className="text-xs mb-6 flex items-start gap-1.5" style={{ ...body, color: C.ash }}><Info size={13} className="mt-0.5 flex-shrink-0" /> це орієнтир для вас і для нас — остаточну оцінку узгодить майстер на місці</p>
+        <div className="border-t pt-4" style={{ borderColor: C.bgSoft }}>
+          <div className="flex justify-between text-sm mb-1.5" style={{ ...mono, color: C.ash }}><span>{area} {service.unit} × {calc.rate} ₴</span><span>{calc.raw} ₴</span></div>
+          {calc.isMinApplied && <div className="flex justify-between text-sm mb-1.5" style={{ ...mono, color: C.ash }}><span>мінімальна сума замовлення</span><span>{MIN_ORDER} ₴</span></div>}
+          {calc.addonsSum > 0 && <div className="flex justify-between text-sm mb-1.5" style={{ ...mono, color: C.ash }}><span>додаткові послуги</span><span>+{calc.addonsSum} ₴</span></div>}
+          {calc.windowsSum > 0 && <div className="flex justify-between text-sm mb-1.5" style={{ ...mono, color: C.ash }}><span>миття вікон ({windowArea} м²)</span><span>+{calc.windowsSum} ₴</span></div>}
+          <div className="flex justify-between items-baseline mt-3"><span className="text-sm" style={{ ...body, color: C.ink }}>Орієнтовно до сплати</span><span className="text-3xl" style={{ ...display, color: C.ink, fontWeight: 700 }}>{calc.total} ₴</span></div>
+          <p className="text-xs mt-2" style={{ ...body, color: C.ash }}>{calc.isMinApplied ? `Розрахунок за площею нижчий за мінімальне замовлення (${MIN_ORDER} ₴ — вартість виїзду бригади), тож базова сума саме така.` : `Сума за площею перевищує мінімальне замовлення — мінімалка окремо не додається.`}</p>
+        </div>
+        <button className="w-full mt-6 py-3.5 rounded-full text-sm font-semibold" style={{ ...body, background: C.ink, color: C.bg }}>Залишити заявку за цим розрахунком</button>
+        <p className="text-xs text-center mt-3" style={{ ...body, color: C.ash }}>Точну суму підтвердимо після огляду об'єкта</p>
+      </div>
+    </div>
+  );
+}
+
+export function LifehacksBlock({ items }) {
+  return <div className="grid sm:grid-cols-3 gap-4">{items.map((tip, i) => <div key={i} className="p-5 rounded-xl" style={{ background: C.mintSoft }}><Lightbulb size={18} color={C.iconVivid} strokeWidth={2.25} className="mb-3" /><p className="text-sm" style={{ ...body, color: C.inkSoft }}>{tip}</p></div>)}</div>;
+}
+
+export function ArticlesBlock({ items, onOpenArticle }) {
+  return (
+    <div className="grid sm:grid-cols-3 gap-4">
+      {items.map((item, i) => {
+        const cat = CATEGORY_META[item.cat] || CATEGORY_META.home;
+        const targetRoute = ARTICLE_TITLE_TO_ROUTE[item.title];
+        const clickable = !!targetRoute;
+        return (
+          <div
+            key={i}
+            onClick={clickable ? () => onOpenArticle(targetRoute) : undefined}
+            className="p-5 rounded-xl border transition-shadow"
+            style={{ borderColor: C.bgSoft, cursor: clickable ? "pointer" : "default", opacity: clickable ? 1 : 0.6 }}
+          >
+            <span
+              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold mb-3"
+              style={{ ...body, background: `${cat.color}22`, color: cat.color }}
+            >
+              <span>{cat.emoji}</span> {cat.label}
+            </span>
+            <div className="flex items-start gap-2">
+              <BookOpen size={16} color={C.iconVivid} strokeWidth={2.25} className="mt-0.5 flex-shrink-0" />
+              <span className="text-sm" style={{ ...body, color: C.ink }}>{item.title}</span>
+            </div>
+            {!clickable && <p className="text-xs mt-2" style={{ ...body, color: C.ash }}>Стаття в розробці</p>}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+export function PhotoGallery({ photos }) {
+  if (!photos || photos.length === 0) return null;
+  return (
+    <div className={`grid gap-4 ${photos.length > 1 ? "sm:grid-cols-2" : "sm:grid-cols-1 max-w-md"}`}>
+      {photos.map((p, i) => (
+        <div key={i} className="rounded-xl overflow-hidden aspect-[4/3]" style={{ background: C.bgSoft }}>
+          <img src={p.src} alt={p.alt} loading="lazy" className="w-full h-full object-cover" />
+        </div>
+      ))}
+    </div>
+  );
+}
+
+export function SocialButtons() {
+  return (
+    <div className="flex flex-wrap gap-3">
+      <a
+        href="https://instagram.com/kliningovakompani"
+        target="_blank" rel="noopener noreferrer"
+        className="px-5 py-3 rounded-full text-sm font-semibold flex items-center gap-2"
+        style={{ ...body, background: C.white, color: C.ink, border: `1px solid ${C.bgSoft}` }}
+      >
+        <Instagram size={17} color={C.iconVivid} strokeWidth={2.25} /> Instagram — більше фото робіт
+      </a>
+      <a
+        href="https://facebook.com/kliningovakompani"
+        target="_blank" rel="noopener noreferrer"
+        className="px-5 py-3 rounded-full text-sm font-semibold flex items-center gap-2"
+        style={{ ...body, background: C.white, color: C.ink, border: `1px solid ${C.bgSoft}` }}
+      >
+        <Facebook size={17} color={C.iconVivid} strokeWidth={2.25} /> Facebook — відгуки та новини
+      </a>
+    </div>
+  );
+}
+
+export function FloatingContactWidget() {
+  const onOrderClick = useOrderModal();
+  const [open, setOpen] = useState(false);
+
+  const items = [
+    { emoji: "\ud83d\udcde", label: "Зателефонувати", href: "tel:+380731164239" },
+    { emoji: "\ud83d\udcac", label: "Telegram", href: "https://t.me/chystomk" },
+    { emoji: "\ud83d\udcf7", label: "Instagram", href: "https://instagram.com/kliningovakompani" },
+    { emoji: "\ud83d\udcd8", label: "Facebook", href: "https://facebook.com/kliningovakompani" },
+    { emoji: "\ud83d\udfe2", label: "Viber", href: "viber://chat?number=%2B380731164239" },
+    { emoji: "\ud83d\udfe2", label: "WhatsApp", href: "https://wa.me/380731164239" },
+    { emoji: "\ud83d\udce7", label: "Email", href: "mailto:chysto.mk@gmail.com" },
+  ];
+
+  return (
+    <div className="fixed bottom-5 right-5 z-40 flex flex-col items-end gap-2.5">
+      {open && (
+        <div className="flex flex-col gap-2 mb-1">
+          <button
+            onClick={() => { setOpen(false); onOrderClick(); }}
+            className="flex items-center gap-2.5 pl-4 pr-5 py-2.5 rounded-full text-sm font-semibold whitespace-nowrap"
+            style={{ ...body, background: C.white, color: C.ink, boxShadow: "0 4px 16px rgba(14,43,51,0.18)" }}
+          >
+            <span style={{ fontSize: 16 }}>📩</span> Залишити заявку
+          </button>
+          {items.map((it) => (
+            <a
+              key={it.label}
+              href={it.href}
+              target={it.href.startsWith("http") ? "_blank" : undefined}
+              rel={it.href.startsWith("http") ? "noopener noreferrer" : undefined}
+              onClick={() => setOpen(false)}
+              className="flex items-center gap-2.5 pl-4 pr-5 py-2.5 rounded-full text-sm font-semibold whitespace-nowrap"
+              style={{ ...body, background: C.white, color: C.ink, boxShadow: "0 4px 16px rgba(14,43,51,0.18)" }}
+            >
+              <span style={{ fontSize: 16 }}>{it.emoji}</span> {it.label}
+            </a>
+          ))}
+        </div>
+      )}
+      <button
+        onClick={() => setOpen(!open)}
+        aria-label="Контакти"
+        className="w-14 h-14 rounded-full flex items-center justify-center"
+        style={{ background: C.lemon, boxShadow: "0 6px 20px rgba(14,43,51,0.25)" }}
+      >
+        {open ? <X size={24} color={C.ink} strokeWidth={2.25} /> : <Phone size={22} color={C.ink} strokeWidth={2.25} />}
+      </button>
+    </div>
+  );
+}
+
+export function FaqAccordion({ items }) {
+  const [openIdx, setOpenIdx] = useState(0);
+  return (
+    <div className="divide-y" style={{ borderColor: C.bgSoft }}>
+      {items.map((f, i) => (
+        <div key={f.q} className="py-4" style={{ borderTopColor: C.bgSoft, borderTopWidth: i === 0 ? 0 : 1, borderTopStyle: "solid" }}>
+          <button className="w-full flex items-center justify-between text-left" onClick={() => setOpenIdx(openIdx === i ? -1 : i)}>
+            <span className="text-base font-medium pr-4" style={{ ...body, color: C.ink }}>{f.q}</span>
+            <ChevronDown size={18} color={C.iconVivid} strokeWidth={2.25} style={{ transform: openIdx === i ? "rotate(180deg)" : "none", transition: "transform 0.2s", flexShrink: 0 }} />
+          </button>
+          {openIdx === i && <p className="text-sm mt-3" style={{ ...body, color: C.ash }}>{f.a}</p>}
+        </div>
+      ))}
+    </div>
+  );
+}
+
+export function GiftCertificateSection() {
+  return (
+    <section className="max-w-6xl mx-auto px-5 sm:px-8 py-14" style={{ background: C.bg, ...dotPattern(C.lemon, 0.07) }}>
+      <div className="rounded-2xl p-8 sm:p-12 grid lg:grid-cols-2 gap-8 items-center" style={{ background: C.ink }}>
+        <div>
+          <div className="w-12 h-12 rounded-full flex items-center justify-center mb-5" style={{ background: C.lemon }}>
+            <Gift size={22} color={C.ink} strokeWidth={2.25} />
+          </div>
+          <h2 className="text-3xl mb-3" style={{ ...display, color: C.bg, fontWeight: 600 }}>Замовити подарунковий сертифікат</h2>
+          <p className="text-sm mb-3" style={{ ...body, color: "#C7D6DE" }}>
+            Подарунковий сертифікат на клінінг у Миколаєві — практичний подарунок близьким, батькам чи колегам:
+            генеральне прибирання квартири, миття вікон або хімчистка меблів на обрану суму.
+          </p>
+          <p className="text-sm mb-7" style={{ ...body, color: "#C7D6DE" }}>
+            Сертифікат на прибирання діє на всі послуги «чисто.» у Миколаєві та області, не має жорсткого терміну
+            використання і активується одним дзвінком чи повідомленням у Telegram.
+          </p>
+          <button className="px-6 py-3.5 rounded-full text-sm font-semibold" style={{ ...body, background: C.lemon, color: C.ink }}>
+            Замовити сертифікат
+          </button>
+        </div>
+        <div className="grid grid-cols-3 gap-3">
+          {CERT_PREVIEWS.map((p, i) => (
+            <div key={i} className="rounded-lg overflow-hidden aspect-[3/4]" style={{ background: C.inkSoft }}>
+              <img src={p.src} alt={p.alt} loading="lazy" className="w-full h-full object-cover" />
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+export function SpringDivider() {
+  return (
+    <div
+      className="relative h-7 -mt-3.5 -mb-3.5 z-10 pointer-events-none"
+      style={{ backgroundImage: `url(${COIL_TILE})`, backgroundRepeat: "repeat-x", backgroundSize: "auto 100%", backgroundPosition: "left center" }}
+      aria-hidden="true"
+    />
+  );
+}
+
+export function OrderChatWidget() {
+  const [step, setStep] = useState(0);
+  const [messages, setMessages] = useState([
+    { from: "bot", text: "Привіт! Це «чисто.» — клінінг Миколаїв. Допоможу замовити прибирання квартири чи іншу послугу за 30 секунд 👋" },
+    { from: "bot", text: "Яку послугу вас цікавить?" },
+  ]);
+  const [answers, setAnswers] = useState({});
+  const [area, setArea] = useState(50);
+  const [level, setLevel] = useState(3);
+  const [date, setDate] = useState("");
+  const [name, setName] = useState("");
+  const [phone, setPhone] = useState("");
+  const endRef = useRef(null);
+
+  useEffect(() => {
+    endRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  }, [messages]);
+
+  const addUser = (text) => setMessages((m) => [...m, { from: "user", text }]);
+  const addBot = (text) => setMessages((m) => [...m, { from: "bot", text }]);
+
+  function chooseService(s) {
+    setAnswers((a) => ({ ...a, serviceId: s.id, serviceName: s.name, priceOnRequest: !!s.priceOnRequest }));
+    addUser(s.name);
+    if (s.priceOnRequest) {
+      addBot(`Добре, «${s.name}». Скільки приблизно предметів (диванів/крісел/килимів)?`);
+      setArea(2);
+    } else {
+      addBot(`Добре, «${s.name}». Яка орієнтовна площа?`);
+      setArea(s.areaDefault);
+    }
+    setStep(1);
+  }
+
+  function confirmArea() {
+    const svc = SERVICES.find((s) => s.id === answers.serviceId);
+    addUser(svc.priceOnRequest ? `${area} шт.` : `${area} ${svc.unit}`);
+    if (svc.priceOnRequest) {
+      addBot("Зрозуміло. Коли вам зручно?");
+      setStep(3);
+    } else {
+      addBot("Оцініть, будь ласка, ступінь забруднення від 1 до 5");
+      setStep(2);
+    }
+  }
+
+  function chooseLevel(lv) {
+    setLevel(lv);
+    addUser(`${lv}`);
+    const svc = SERVICES.find((s) => s.id === answers.serviceId);
+    const rate = rateForLevel(svc, lv);
+    const total = Math.max(MIN_ORDER, Math.round(area * rate));
+    setAnswers((a) => ({ ...a, level: lv, estimate: total }));
+    addBot(`Орієнтовно: ${total} ₴ (фінальну суму підтвердить майстер на місці). Коли вам зручно?`);
+    setStep(3);
+  }
+
+  function confirmDate() {
+    addUser(date || "уточнимо телефоном");
+    addBot("Як до вас звертатися і на який номер передзвонити?");
+    setStep(4);
+  }
+
+  function confirmContact() {
+    addUser(`${name}, ${phone}`);
+    addBot("Дякуємо! Перевірте заявку нижче і підтвердіть відправку 👇");
+    setAnswers((a) => ({ ...a, date, name, phone }));
+    setStep(5);
+  }
+
+  function submit() {
+    addUser("Надіслати заявку");
+    addBot("✅ Заявку прийнято! Передзвонимо протягом 15 хвилин.");
+    setStep(6);
+  }
+
+  const svc = SERVICES.find((s) => s.id === answers.serviceId);
+
+  return (
+    <div className="rounded-2xl overflow-hidden max-w-lg mx-auto" style={{ background: C.white }}>
+      <div className="p-5 flex items-center gap-2.5" style={{ background: C.ink }}>
+        <div className="w-8 h-8 rounded-full flex items-center justify-center" style={{ background: C.lemon }}>
+          <MessageCircle size={16} color={C.ink} strokeWidth={2.25} />
+        </div>
+        <div>
+          <div className="text-sm font-semibold" style={{ ...body, color: C.bg }}>Заявка «чисто.»</div>
+          <div className="text-xs" style={{ ...body, color: C.mint }}>онлайн, відповідає одразу</div>
+        </div>
+      </div>
+
+      <div className="p-5 max-h-96 overflow-y-auto flex flex-col gap-2.5">
+        {messages.map((m, i) => (
+          <div key={i} className={`flex ${m.from === "user" ? "justify-end" : "justify-start"}`}>
+            <div
+              className="px-4 py-2.5 rounded-2xl text-sm max-w-[80%]"
+              style={{
+                ...body,
+                background: m.from === "user" ? C.lemon : C.bgSoft,
+                color: C.ink,
+                borderBottomRightRadius: m.from === "user" ? 4 : 16,
+                borderBottomLeftRadius: m.from === "bot" ? 4 : 16,
+              }}
+            >
+              {m.text}
+            </div>
+          </div>
+        ))}
+        <div ref={endRef} />
+      </div>
+
+      <div className="p-5 border-t" style={{ borderColor: C.bgSoft }}>
+        {step === 0 && (
+          <div className="flex flex-wrap gap-2">
+            {SERVICES.map((s) => (
+              <button key={s.id} onClick={() => chooseService(s)} className="px-3.5 py-2 rounded-full text-sm font-medium" style={{ ...body, background: C.bgSoft, color: C.ink }}>
+                {s.name}
+              </button>
+            ))}
+          </div>
+        )}
+
+        {step === 1 && svc && (
+          <div>
+            <label className="flex justify-between text-xs uppercase tracking-wide mb-2" style={{ ...body, color: C.ash }}>
+              <span>{svc.priceOnRequest ? "Кількість предметів" : "Площа"}</span>
+              <span style={mono}>{area} {svc.priceOnRequest ? "шт." : svc.unit}</span>
+            </label>
+            <input
+              type="range"
+              min={svc.priceOnRequest ? 1 : svc.areaMin}
+              max={svc.priceOnRequest ? 10 : svc.areaMax}
+              value={area}
+              onChange={(e) => setArea(Number(e.target.value))}
+              className="range-slider w-full mb-4"
+            />
+            <button onClick={confirmArea} className="w-full py-3 rounded-full text-sm font-semibold" style={{ ...body, background: C.ink, color: C.bg }}>Далі</button>
+          </div>
+        )}
+
+        {step === 2 && (
+          <div className="flex gap-2">
+            {[1, 2, 3, 4, 5].map((lv) => (
+              <button key={lv} onClick={() => chooseLevel(lv)} className="flex-1 py-2.5 rounded-lg text-sm font-semibold" style={{ ...mono, background: C.bgSoft, color: C.ink }}>{lv}</button>
+            ))}
+          </div>
+        )}
+
+        {step === 3 && (
+          <div>
+            <input
+              type="date"
+              value={date}
+              onChange={(e) => setDate(e.target.value)}
+              className="w-full px-4 py-2.5 rounded-lg text-sm mb-3"
+              style={{ ...body, background: C.bgSoft, color: C.ink, border: "none" }}
+            />
+            <button onClick={confirmDate} className="w-full py-3 rounded-full text-sm font-semibold" style={{ ...body, background: C.ink, color: C.bg }}>Далі</button>
+          </div>
+        )}
+
+        {step === 4 && (
+          <div className="flex flex-col gap-2.5">
+            <input type="text" placeholder="Ваше ім'я" value={name} onChange={(e) => setName(e.target.value)} className="w-full px-4 py-2.5 rounded-lg text-sm" style={{ ...body, background: C.bgSoft, color: C.ink, border: "none" }} />
+            <input type="tel" placeholder="+380 __ ___ __ __" value={phone} onChange={(e) => setPhone(e.target.value)} className="w-full px-4 py-2.5 rounded-lg text-sm" style={{ ...body, background: C.bgSoft, color: C.ink, border: "none" }} />
+            <button onClick={confirmContact} disabled={!name || !phone} className="w-full py-3 rounded-full text-sm font-semibold" style={{ ...body, background: C.ink, color: C.bg, opacity: !name || !phone ? 0.5 : 1 }}>Далі</button>
+          </div>
+        )}
+
+        {step === 5 && (
+          <div>
+            <div className="rounded-lg p-4 mb-3 text-sm" style={{ background: C.mintSoft, ...body, color: C.inkSoft }}>
+              <div><b>Послуга:</b> {answers.serviceName}</div>
+              {!answers.priceOnRequest && <div><b>Орієнтовна ціна:</b> {answers.estimate} ₴</div>}
+              <div><b>Дата:</b> {date || "уточнимо телефоном"}</div>
+              <div><b>Контакт:</b> {name}, {phone}</div>
+            </div>
+            <button onClick={submit} className="w-full py-3 rounded-full text-sm font-semibold" style={{ ...body, background: C.lemon, color: C.ink }}>Надіслати заявку</button>
+          </div>
+        )}
+
+        {step === 6 && (
+          <div className="flex items-center gap-2 justify-center py-2" style={{ ...body, color: C.iconVivid }}>
+            <CheckCircle2 size={18} strokeWidth={2.25} /> Заявку надіслано
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+export function CtaBand() {
+  return (
+    <section id="zayavka-cta" className="py-16" style={{ background: C.lemon, ...dotPattern(C.ink, 0.06) }}>
+      <div className="max-w-4xl mx-auto px-5 sm:px-8 text-center">
+        <h2 className="text-3xl sm:text-4xl mb-4" style={{ ...display, color: C.ink, fontWeight: 600 }}>Домовимось на найближчий день?</h2>
+        <p className="text-base mb-7" style={{ ...body, color: C.inkSoft }}>Замовити клінінг у Миколаєві можна прямо зараз — залиште заявку, передзвонимо протягом 15 хвилин і узгодимо зручний час виїзду</p>
+        <div className="flex flex-wrap gap-3 justify-center">
+          <a href="https://t.me/chystomk" target="_blank" rel="noopener noreferrer" className="px-7 py-3.5 rounded-full text-sm font-semibold flex items-center gap-2" style={{ ...body, background: C.ink, color: C.bg }}><MessageCircle size={16} strokeWidth={2.25} /> Написати в Telegram</a>
+          <a href="tel:+380731164239" className="px-7 py-3.5 rounded-full text-sm font-semibold flex items-center gap-2 border" style={{ ...body, borderColor: C.ink, color: C.ink }}><Phone size={16} strokeWidth={2.25} /> 073 116 42 39</a>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+export function Footer() {
+  return (
+    <footer className="py-10" style={{ background: C.ink, ...dotPattern(C.mint, 0.08) }}>
+      <div className="max-w-6xl mx-auto px-5 sm:px-8 flex flex-wrap items-center justify-between gap-4">
+        <div className="flex items-center">
+          <LogoMark size={30} />
+          <span className="text-lg tracking-tight" style={{ ...display, color: C.bg, fontWeight: 600 }}>чисто<span style={{ color: C.lemon }}>.</span></span>
+        </div>
+        <p className="text-xs" style={{ ...body, color: C.ash }}>© 2026 «чисто.» — клінінгова служба у Миколаєві</p>
+        <div className="flex items-center gap-1.5 text-xs" style={{ ...body, color: C.mint }}><Clock size={14} strokeWidth={2.25} /> Пн–Нд, 08:00–21:00</div>
+        <a href="mailto:chysto.mk@gmail.com" className="flex items-center gap-1.5 text-xs" style={{ ...body, color: C.mint }}><Mail size={14} strokeWidth={2.25} /> chysto.mk@gmail.com</a>
+        <div className="flex items-center gap-1.5 text-xs" style={{ ...body, color: C.mint }}><ShieldCheck size={14} strokeWidth={2.25} /> Договір і акт виконаних робіт</div>
+      </div>
+    </footer>
+  );
+}
+
+export function ServicePage({ serviceId }) {
+  const navigate = useNavigate();
+  const service = SERVICES.find((s) => s.id === serviceId) || SERVICES[0];
+  const details = detailsFor(service.id);
+  const faqItems = details.faqExtra ? [details.faqExtra, ...FAQ] : FAQ;
+  const theme = SERVICE_THEME[service.id] || SERVICE_THEME.generalne;
+  const heroText = theme.dark ? C.bg : C.ink;
+  const heroSoft = theme.dark ? "#C7D6DE" : C.inkSoft;
+  const heroMuted = theme.dark ? "#8FA3AE" : C.ash;
+  const heroIcon = theme.dark ? "#6FE3C4" : C.iconVivid;
+  return (
+    <div>
+      <div className="relative overflow-hidden" style={{ background: theme.tint }}>
+        <ServiceBackdrop variant={theme.variant} />
+        <section className="max-w-6xl mx-auto px-5 sm:px-8 pt-10 pb-10 relative z-10">
+        <div className="flex items-center gap-1.5 text-xs mb-6" style={{ ...body, color: heroMuted }}><span>Послуги</span><ChevronRight size={12} /><span style={{ color: heroText }}>{service.name}</span></div>
+        <div className="grid lg:grid-cols-2 gap-10 items-start">
+          <div className="min-w-0">
+            <h1 className="text-4xl sm:text-5xl leading-[1.08] mb-4" style={{ ...display, color: heroText, fontWeight: 600 }}>{service.name} у Миколаєві</h1>
+            <p className="text-lg mb-6" style={{ ...body, color: heroSoft }}>{details.intro}</p>
+            <div className="flex flex-wrap gap-4 mb-8">
+              <div className="flex items-center gap-2 text-sm" style={{ ...body, color: heroText }}><Clock size={16} color={heroIcon} strokeWidth={2.25} /> {service.priceOnRequest ? "ціна договірна" : `${service.rateMin}–${service.rateMax} ₴/${service.unit}`}</div>
+              <div className="flex items-center gap-2 text-sm" style={{ ...body, color: heroText }}><MapPin size={16} color={heroIcon} strokeWidth={2.25} /> усі райони Миколаєва</div>
+              <div className="flex items-center gap-2 text-sm" style={{ ...body, color: heroText }}><ShieldCheck size={16} color={heroIcon} strokeWidth={2.25} /> ціну підтверджує майстер на місці</div>
+            </div>
+            <h2 className="text-xl mb-4" style={{ ...display, color: heroText, fontWeight: 600 }}>Що входить</h2>
+            <div className="mb-8">
+              {Array.isArray(details.checklist) && details.checklist.length > 0 && typeof details.checklist[0] === "object" ? (
+                <RoomChecklist rooms={details.checklist} />
+              ) : (
+                <div className="grid sm:grid-cols-2 gap-x-6 gap-y-2.5">
+                  {details.checklist.map((item) => <div key={item} className="flex items-start gap-2"><CheckCircle2 size={16} color={heroIcon} strokeWidth={2.25} className="mt-0.5 flex-shrink-0" /><span className="text-sm" style={{ ...body, color: heroSoft }}>{item}</span></div>)}
+                </div>
+              )}
+            </div>
+            <h2 className="text-xl mb-3" style={{ ...display, color: heroText, fontWeight: 600 }}>Райони обслуговування</h2>
+            <div className="flex flex-wrap gap-2 mb-2">{DISTRICTS.map((d) => <Chip key={d}>{d}</Chip>)}</div>
+          </div>
+          <div className="lg:sticky lg:top-24 min-w-0">{service.priceOnRequest ? <PriceOnRequestCard /> : <ReceiptCalculator serviceId={service.id} />}</div>
+        </div>
+        </section>
+      </div>
+
+      {WORK_PHOTOS[service.id] && (
+        <section className="max-w-6xl mx-auto px-5 sm:px-8 pb-14">
+          <h2 className="text-3xl mb-2" style={{ ...display, color: C.ink, fontWeight: 600 }}>Наші роботи</h2>
+          <p className="text-sm mb-6" style={{ ...body, color: C.ash }}>Реальні фото з виїздів команди «чисто.» — поповнюємо регулярно</p>
+          <PhotoGallery photos={WORK_PHOTOS[service.id]} />
+        </section>
+      )}
+
+      <section className="max-w-6xl mx-auto px-5 sm:px-8 py-14" style={{ background: C.bg, ...dotPattern(C.mint, 0.05) }}>
+        <h2 className="text-3xl mb-2" style={{ ...display, color: C.ink, fontWeight: 600 }}>Лайфхаки по темі</h2>
+        <p className="text-sm mb-6" style={{ ...body, color: C.ash }}>Практичні поради — те, що зазвичай шукають перед замовленням</p>
+        <LifehacksBlock items={details.lifehacks} />
+      </section>
+
+      <section className="max-w-6xl mx-auto px-5 sm:px-8 pb-14" style={{ background: C.bg, ...dotPattern(C.lemon, 0.05) }}>
+        <h2 className="text-3xl mb-2" style={{ ...display, color: C.ink, fontWeight: 600 }}>Статті по темі</h2>
+        <p className="text-sm mb-6" style={{ ...body, color: C.ash }}>Матеріали блогу — саме вони підтягують довгі пошукові запити</p>
+        <ArticlesBlock items={details.articles} onOpenArticle={navigate} />
+      </section>
+
+      <section className="max-w-4xl mx-auto px-5 sm:px-8 py-14" style={{ background: C.bg, ...dotPattern(C.lemon, 0.04) }}>
+        <h2 className="text-3xl mb-6" style={{ ...display, color: C.ink, fontWeight: 600 }}>Питання, які часто ставлять</h2>
+        <FaqAccordion items={faqItems} />
+      </section>
+
+      <section className="max-w-4xl mx-auto px-5 sm:px-8 pb-14">
+        <h2 className="text-xl mb-4" style={{ ...display, color: C.ink, fontWeight: 600 }}>Більше фото та відео</h2>
+        <SocialButtons />
+      </section>
+
+      <CtaBand />
+    </div>
+  );
+}
+
+export function ArticlePage({ articleRoute }) {
+  const navigate = useNavigate();
+  const article = ARTICLES_CONTENT[articleRoute];
+  if (!article) return null;
+  const service = SERVICES.find((s) => s.id === article.serviceId);
+  return (
+    <div>
+      <section className="max-w-3xl mx-auto px-5 sm:px-8 pt-10 pb-14">
+        <div className="flex items-center gap-1.5 text-xs mb-6" style={
+{ ...body, color: C.ash }}>
+          <button onClick={() => navigate("home")} style={{ color: C.ash }}>Головна</button>
+          <ChevronRight size={12} />
+          {service && <button onClick={() => navigate(service.id)} style={{ color: C.ash }}>{service.name}</button>}
+          <ChevronRight size={12} />
+          <span style={{ color: C.ink }}>Стаття</span>
+        </div>
+        <h1 className="text-3xl sm:text-4xl leading-[1.15] mb-6" style={{ ...display, color: C.ink, fontWeight: 600 }}>{article.title}</h1>
+        <div className="flex flex-col gap-4">
+          {article.body.map((block, i) =>
+            block.startsWith("## ") ? (
+              <h2 key={i} className="text-xl mt-4" style={{ ...display, color: C.ink, fontWeight: 600 }}>{block.replace("## ", "")}</h2>
+            ) : (
+              <p key={i} className="text-base leading-relaxed" style={{ ...body, color: C.inkSoft }}>{block}</p>
+            )
+          )}
+        </div>
+        {service && (
+          <div className="mt-10 p-5 rounded-xl flex items-center justify-between gap-4 flex-wrap" style={{ background: C.mintSoft }}>
+            <span className="text-sm" style={{ ...body, color: C.inkSoft }}>Готові замовити «{service.name}»?</span>
+            <button onClick={() => navigate(service.id)} className="px-5 py-2.5 rounded-full text-sm font-semibold" style={{ ...body, background: C.ink, color: C.bg }}>Перейти до послуги</button>
+          </div>
+        )}
+      </section>
+    </div>
+  );
+}
+
+export function OrderModal({ open, onClose }) {
+  if (!open) return null;
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-4"
+      style={{ background: "rgba(10,35,43,0.6)" }}
+      onClick={onClose}
+    >
+      <div
+        className="w-full overflow-y-auto rounded-2xl relative"
+        style={{ maxWidth: 480, maxHeight: "90vh" }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <button
+          onClick={onClose}
+          aria-label="Закрити"
+          className="absolute top-3 right-3 z-10 w-9 h-9 rounded-full flex items-center justify-center"
+          style={{ background: C.white, boxShadow: "0 2px 8px rgba(10,35,43,0.2)" }}
+        >
+          <X size={18} color={C.ink} strokeWidth={2.25} />
+        </button>
+        <OrderChatWidget />
+      </div>
+    </div>
+  );
+}
