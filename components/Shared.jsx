@@ -322,37 +322,6 @@ export function NavBar({ route }) {
   );
 }
 
-export function ProcessSteps({ onOrderClick }) {
-  const steps = [
-    { n: "01", t: "Заявка", d: "Лишаєте площу й адресу — калькулятор одразу покаже орієнтовну ціну", clickable: true },
-    { n: "02", t: "Огляд і підтвердження", d: "Майстер оглядає об'єкт і озвучує фінальну суму до початку робіт" },
-    { n: "03", t: "Прибирання", d: "Працюємо за чек-листом послуги, свій інвентар та хімія" },
-    { n: "04", t: "Перевірка", d: "Проходимо приміщення разом, підписуєте акт" },
-  ];
-  return (
-    <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
-      {steps.map((s, i) => {
-        const Wrapper = s.clickable ? "button" : "div";
-        return (
-          <Wrapper
-            key={s.n}
-            onClick={s.clickable ? onOrderClick : undefined}
-            className={`checklist-item p-5 rounded-xl text-left w-full transition-transform ${s.clickable ? "hover:-translate-y-1 cursor-pointer" : ""}`}
-            style={{ background: C.white, animationDelay: `${i * 0.08}s` }}
-          >
-            <div className="flex items-center gap-2 mb-3"><span style={{ ...mono, color: C.mint, fontSize: 13 }}>{s.n}</span><CheckCircle2 size={16} color={C.iconVivid} strokeWidth={2.25} /></div>
-            <h4 className="text-lg mb-1 flex items-center gap-2" style={{ ...display, color: C.ink, fontWeight: 600 }}>
-              {s.t}
-              {s.clickable && <ArrowRight size={15} color={C.iconVivid} strokeWidth={2.25} />}
-            </h4>
-            <p className="text-sm" style={{ ...body, color: C.ash }}>{s.d}</p>
-          </Wrapper>
-        );
-      })}
-    </div>
-  );
-}
-
 export function HomePage() {
   const onOrderClick = useOrderModal();
   const navigate = useNavigate();
