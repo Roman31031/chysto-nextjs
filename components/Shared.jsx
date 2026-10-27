@@ -396,7 +396,6 @@ export function HomePage() {
 
       <SpringDivider />
 
-      <section className="py-14" style={{ background: C.bgSoft, ...dotPattern(C.mint, 0.07) }}><div className="max-w-6xl mx-auto px-5 sm:px-8"><h2 className="text-3xl mb-8" style={{ ...display, color: C.ink, fontWeight: 600 }}>Як проходить виїзд</h2><ProcessSteps onOrderClick={onOrderClick} /></div></section>
 
       <SpringDivider />
 
