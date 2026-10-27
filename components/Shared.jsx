@@ -285,7 +285,6 @@ export function LogoMark({ size = 36 }) {
 }
 
 export function NavBar({ route }) {
-  const onOrderClick = useOrderModal();
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   return (
@@ -310,9 +309,6 @@ export function NavBar({ route }) {
           >
             <Phone size={15} strokeWidth={2.25} /> 073 116 42 39
           </a>
-          <button onClick={onOrderClick} className="px-4 py-2 rounded-full text-sm font-semibold flex items-center gap-1.5 whitespace-nowrap" style={{ ...body, background: C.ink, color: C.bg }}>
-            <MessageCircle size={15} strokeWidth={2.25} /> Замовити онлайн
-          </button>
           <button className="md:hidden flex-shrink-0" onClick={() => setOpen(!open)} aria-label="Меню">{open ? <X size={22} color={C.ink} /> : <Menu size={22} color={C.ink} />}</button>
         </div>
       </div>
