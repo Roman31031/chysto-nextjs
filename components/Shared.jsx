@@ -6,7 +6,7 @@ import {
   Sparkles, CheckCircle2, Phone, MapPin, Star, Home as HomeIcon,
   Building2, Sofa, Droplets, ChevronRight, ChevronDown, Menu, X,
   ArrowRight, Wind, Calculator, MessageCircle, ShieldCheck, Clock,
-  Lightbulb, BookOpen, Info, Instagram, Facebook, Gift, Mail
+  Lightbulb, BookOpen, Info, Instagram, Facebook, Gift, Mail, Send
 } from "lucide-react";
 import {
   C, display, body, mono, HERO_BG, COIL_TILE, dotPattern, SERVICE_THEME,
@@ -590,53 +590,95 @@ export function SocialButtons() {
 }
 
 export function FloatingContactWidget() {
-  const onOrderClick = useOrderModal();
   const [open, setOpen] = useState(false);
 
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e) => { if (e.key === "Escape") setOpen(false); };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [open]);
+
   const items = [
-    { emoji: "\ud83d\udcde", label: "Зателефонувати", href: "tel:+380731164239" },
-    { emoji: "\ud83d\udcac", label: "Telegram", href: "https://t.me/chystomk" },
-    { emoji: "\ud83d\udcf7", label: "Instagram", href: "https://instagram.com/kliningovakompani" },
-    { emoji: "\ud83d\udcd8", label: "Facebook", href: "https://facebook.com/kliningovakompani" },
-    { emoji: "\ud83d\udfe2", label: "Viber", href: "viber://chat?number=%2B380731164239" },
-    { emoji: "\ud83d\udfe2", label: "WhatsApp", href: "https://wa.me/380731164239" },
-    { emoji: "\ud83d\udce7", label: "Email", href: "mailto:chysto.mk@gmail.com" },
+    { label: "Подзвонити", sub: "073 116 42 39", href: "tel:+380731164239", color: C.lemonDeep, Icon: Phone },
+    { label: "Viber", sub: "073 116 42 39", href: "viber://chat?number=%2B380731164239", color: "#7360F2", Icon: Phone },
+    { label: "WhatsApp", sub: "073 116 42 39", href: "https://wa.me/380731164239", color: "#25D366", Icon: MessageCircle },
   ];
 
+  const shadow = "0 14px 34px -10px rgba(10,35,43,0.45)";
+
   return (
-    <div className="fixed bottom-5 right-5 z-40 flex flex-col items-end gap-2.5">
+    <div className="fcw" style={{ position: "fixed", right: 16, bottom: "calc(16px + env(safe-area-inset-bottom, 0px))", zIndex: 40, display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 12, ...body }}>
+      <style>{`
+        .fcw-ring{position:absolute;inset:-6px;border-radius:999px;border:2px solid ${C.lemon};animation:fcwPulse 2.4s ease-out infinite;pointer-events:none}
+        @keyframes fcwPulse{0%{opacity:.8;transform:scale(.92)}80%,100%{opacity:0;transform:scale(1.25)}}
+        @keyframes fcwIn{from{opacity:0;transform:translateY(10px) scale(.98)}to{opacity:1;transform:none}}
+        .fcw-panel{animation:fcwIn .22s ease-out}
+        .fcw-row:hover{background:${C.bg}}
+        .fcw-text{display:none!important}
+        .fcw a:focus-visible,.fcw button:focus-visible{outline:3px solid ${C.lemon};outline-offset:2px}
+        @media (max-width:520px){.fcw-text{display:none!important}.fcw-pill{padding:6px!important}}
+      `}</style>
+
       {open && (
-        <div className="flex flex-col gap-2 mb-1">
-          <button
-            onClick={() => { setOpen(false); onOrderClick(); }}
-            className="flex items-center gap-2.5 pl-4 pr-5 py-2.5 rounded-full text-sm font-semibold whitespace-nowrap"
-            style={{ ...body, background: C.white, color: C.ink, boxShadow: "0 4px 16px rgba(14,43,51,0.18)" }}
-          >
-            <span style={{ fontSize: 16 }}>📩</span> Залишити заявку
-          </button>
-          {items.map((it) => (
-            <a
-              key={it.label}
-              href={it.href}
-              target={it.href.startsWith("http") ? "_blank" : undefined}
-              rel={it.href.startsWith("http") ? "noopener noreferrer" : undefined}
-              onClick={() => setOpen(false)}
-              className="flex items-center gap-2.5 pl-4 pr-5 py-2.5 rounded-full text-sm font-semibold whitespace-nowrap"
-              style={{ ...body, background: C.white, color: C.ink, boxShadow: "0 4px 16px rgba(14,43,51,0.18)" }}
-            >
-              <span style={{ fontSize: 16 }}>{it.emoji}</span> {it.label}
-            </a>
-          ))}
+        <div className="fcw-panel" role="dialog" aria-label="Зв'язатися з нами" style={{ width: 270, maxWidth: "calc(100vw - 32px)", background: C.white, borderRadius: 24, boxShadow: shadow, overflow: "hidden" }}>
+          <div style={{ background: C.ink, color: C.bg, padding: "16px 18px", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
+            <div>
+              <div style={{ ...display, fontSize: 19, fontWeight: 600, lineHeight: 1.15 }}>Зв'яжіться з нами<span style={{ color: C.lemon }}>.</span></div>
+              <div style={{ fontSize: 12.5, color: C.mintSoft, marginTop: 3 }}>Оберіть зручний спосіб</div>
+            </div>
+            <button onClick={() => setOpen(false)} aria-label="Закрити" style={{ width: 34, height: 34, borderRadius: 999, background: "rgba(255,255,255,0.12)", border: 0, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", flex: "none" }}>
+              <X size={18} color={C.bg} strokeWidth={2.25} />
+            </button>
+          </div>
+
+          <div style={{ padding: "8px 8px 10px", display: "flex", flexDirection: "column" }}>
+            {items.map(({ label, sub, href, color, Icon }) => (
+              <a
+                key={label}
+                className="fcw-row"
+                href={href}
+                target={href.startsWith("http") ? "_blank" : undefined}
+                rel={href.startsWith("http") ? "noopener noreferrer" : undefined}
+                onClick={() => setOpen(false)}
+                style={{ display: "flex", alignItems: "center", gap: 12, padding: "9px 10px", borderRadius: 14, textDecoration: "none", color: C.ink }}
+              >
+                <span style={{ width: 38, height: 38, borderRadius: 12, background: color, display: "flex", alignItems: "center", justifyContent: "center", flex: "none" }}>
+                  <Icon size={18} color="#FFFFFF" strokeWidth={2.25} />
+                </span>
+                <span style={{ minWidth: 0, flex: 1 }}>
+                  <span style={{ display: "block", fontSize: 14.5, fontWeight: 700 }}>{label}</span>
+                  <span style={{ display: "block", fontSize: 12.5, color: C.ash, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{sub}</span>
+                </span>
+                <ChevronRight size={17} color={C.ash} />
+              </a>
+            ))}
+          </div>
+
         </div>
       )}
-      <button
-        onClick={() => setOpen(!open)}
-        aria-label="Контакти"
-        className="w-14 h-14 rounded-full flex items-center justify-center"
-        style={{ background: C.lemon, boxShadow: "0 6px 20px rgba(14,43,51,0.25)" }}
-      >
-        {open ? <X size={24} color={C.ink} strokeWidth={2.25} /> : <Phone size={22} color={C.ink} strokeWidth={2.25} />}
-      </button>
+
+      <div className="fcw-pill" style={{ display: "flex", alignItems: "center", gap: 6, padding: "6px 6px 6px 6px", background: C.ink, borderRadius: 999, boxShadow: shadow }}>
+        <a href="tel:+380731164239" aria-label="Подзвонити: 073 116 42 39" style={{ display: "flex", alignItems: "center", gap: 12, textDecoration: "none", paddingRight: 6 }}>
+          <span style={{ position: "relative", width: 52, height: 52, borderRadius: 999, background: C.lemon, display: "flex", alignItems: "center", justifyContent: "center", flex: "none" }}>
+            {!open && <span className="fcw-ring" />}
+            <Phone size={22} color={C.ink} strokeWidth={2.4} />
+          </span>
+          <span className="fcw-text" style={{ display: "flex", flexDirection: "column", lineHeight: 1.15 }}>
+            <span style={{ fontSize: 11.5, color: C.mintSoft, fontWeight: 600, letterSpacing: ".04em", textTransform: "uppercase" }}>Подзвонити</span>
+            <span style={{ fontSize: 15.5, color: C.white, fontWeight: 700, whiteSpace: "nowrap", fontVariantNumeric: "tabular-nums" }}>073 116 42 39</span>
+          </span>
+        </a>
+        <span className="fcw-text" aria-hidden="true" style={{ width: 1, height: 30, background: "rgba(255,255,255,0.18)", margin: "0 4px" }} />
+        <button
+          onClick={() => setOpen(!open)}
+          aria-expanded={open}
+          aria-label={open ? "Закрити контакти" : "Написати в месенджер"}
+          style={{ width: 52, height: 52, borderRadius: 999, border: 0, background: open ? C.white : C.mint, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", flex: "none", transition: "background .2s" }}
+        >
+          {open ? <X size={22} color={C.ink} strokeWidth={2.4} /> : <MessageCircle size={22} color={C.white} strokeWidth={2.4} />}
+        </button>
+      </div>
     </div>
   );
 }
