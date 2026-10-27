@@ -268,19 +268,7 @@ export function ServiceBackdrop({ variant }) {
 
 export function LogoMark({ size = 36 }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 128 128" role="img" aria-label="чисто.">
-      <defs>
-        <clipPath id="logoSquircle">
-          <rect x="0" y="0" width="128" height="128" rx="30" />
-        </clipPath>
-      </defs>
-      <g clipPath="url(#logoSquircle)">
-        <rect x="0" y="0" width="128" height="128" fill={C.ink} />
-        <polygon points="128,0 128,128 0,128" fill={C.mint} />
-        <polygon points="8,8 60,8 8,60" fill={C.inkSoft} />
-        <path d="M89 33 L94 44 L105 49 L94 54 L89 65 L84 54 L73 49 L84 44 Z" fill={C.lemon} />
-      </g>
-    </svg>
+    <img src="/logo-mark.png" width={size} height={size} alt="чисто." style={{ width: size, height: size, objectFit: "contain", display: "block", flex: "none" }} />
   );
 }
 
@@ -292,7 +280,7 @@ export function NavBar({ route }) {
       <div className="max-w-6xl mx-auto px-5 sm:px-8 h-16 flex items-center justify-between">
         <button onClick={() => navigate("home")} className="flex items-center gap-2">
           <LogoMark size={38} />
-          <span className="text-xl tracking-tight whitespace-nowrap" style={{ ...display, color: C.ink, fontWeight: 600 }}>чисто<span style={{ color: C.lemonDeep }}>.</span></span>
+          <span className="text-xl whitespace-nowrap" style={{ ...body, color: "#002040", fontWeight: 800, letterSpacing: "-0.02em", textTransform: "uppercase" }}>чисто<span style={{ color: "#0EA8F7" }}>.</span></span>
         </button>
         <span className="hidden lg:block text-xs font-semibold uppercase tracking-widest whitespace-nowrap" style={{ ...body, color: C.mint }}>Клінінг Миколаїв</span>
         <nav className="hidden md:flex items-center gap-6" style={body}>
@@ -922,7 +910,7 @@ export function Footer() {
       <div className="max-w-6xl mx-auto px-5 sm:px-8 flex flex-wrap items-center justify-between gap-4">
         <div className="flex items-center">
           <LogoMark size={30} />
-          <span className="text-lg tracking-tight" style={{ ...display, color: C.bg, fontWeight: 600 }}>чисто<span style={{ color: C.lemon }}>.</span></span>
+          <span className="text-lg" style={{ ...body, color: C.bg, fontWeight: 800, letterSpacing: "-0.02em", textTransform: "uppercase", marginLeft: 8 }}>чисто<span style={{ color: "#0EA8F7" }}>.</span></span>
         </div>
         <p className="text-xs" style={{ ...body, color: C.ash }}>© 2026 «чисто.» — клінінгова служба у Миколаєві</p>
         <div className="flex items-center gap-1.5 text-xs" style={{ ...body, color: C.mint }}><Clock size={14} strokeWidth={2.25} /> Пн–Нд, 08:00–21:00</div>
