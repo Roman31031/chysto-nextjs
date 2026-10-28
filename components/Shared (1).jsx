@@ -268,19 +268,7 @@ export function ServiceBackdrop({ variant }) {
 
 export function LogoMark({ size = 36 }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 128 128" role="img" aria-label="чисто.">
-      <defs>
-        <clipPath id="logoSquircle">
-          <rect x="0" y="0" width="128" height="128" rx="30" />
-        </clipPath>
-      </defs>
-      <g clipPath="url(#logoSquircle)">
-        <rect x="0" y="0" width="128" height="128" fill={C.ink} />
-        <polygon points="128,0 128,128 0,128" fill={C.mint} />
-        <polygon points="8,8 60,8 8,60" fill={C.inkSoft} />
-        <path d="M89 33 L94 44 L105 49 L94 54 L89 65 L84 54 L73 49 L84 44 Z" fill={C.lemon} />
-      </g>
-    </svg>
+    <img src="/logo-mark.png" width={size} height={size} alt="чисто." style={{ width: size, height: size, objectFit: "contain", display: "block", flex: "none" }} />
   );
 }
 
@@ -292,7 +280,7 @@ export function NavBar({ route }) {
       <div className="max-w-6xl mx-auto px-5 sm:px-8 h-16 flex items-center justify-between">
         <button onClick={() => navigate("home")} className="flex items-center gap-2">
           <LogoMark size={38} />
-          <span className="text-xl tracking-tight whitespace-nowrap" style={{ ...display, color: C.ink, fontWeight: 600 }}>чисто<span style={{ color: C.lemonDeep }}>.</span></span>
+          <span className="text-xl whitespace-nowrap" style={{ ...body, color: "#002040", fontWeight: 800, letterSpacing: "-0.02em", textTransform: "uppercase" }}>чисто<span style={{ color: "#0EA8F7" }}>.</span></span>
         </button>
         <span className="hidden lg:block text-xs font-semibold uppercase tracking-widest whitespace-nowrap" style={{ ...body, color: C.mint }}>Клінінг Миколаїв</span>
         <nav className="hidden md:flex items-center gap-6" style={body}>
@@ -322,37 +310,6 @@ export function NavBar({ route }) {
   );
 }
 
-export function ProcessSteps({ onOrderClick }) {
-  const steps = [
-    { n: "01", t: "Заявка", d: "Лишаєте площу й адресу — калькулятор одразу покаже орієнтовну ціну", clickable: true },
-    { n: "02", t: "Огляд і підтвердження", d: "Майстер оглядає об'єкт і озвучує фінальну суму до початку робіт" },
-    { n: "03", t: "Прибирання", d: "Працюємо за чек-листом послуги, свій інвентар та хімія" },
-    { n: "04", t: "Перевірка", d: "Проходимо приміщення разом, підписуєте акт" },
-  ];
-  return (
-    <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
-      {steps.map((s, i) => {
-        const Wrapper = s.clickable ? "button" : "div";
-        return (
-          <Wrapper
-            key={s.n}
-            onClick={s.clickable ? onOrderClick : undefined}
-            className={`checklist-item p-5 rounded-xl text-left w-full transition-transform ${s.clickable ? "hover:-translate-y-1 cursor-pointer" : ""}`}
-            style={{ background: C.white, animationDelay: `${i * 0.08}s` }}
-          >
-            <div className="flex items-center gap-2 mb-3"><span style={{ ...mono, color: C.mint, fontSize: 13 }}>{s.n}</span><CheckCircle2 size={16} color={C.iconVivid} strokeWidth={2.25} /></div>
-            <h4 className="text-lg mb-1 flex items-center gap-2" style={{ ...display, color: C.ink, fontWeight: 600 }}>
-              {s.t}
-              {s.clickable && <ArrowRight size={15} color={C.iconVivid} strokeWidth={2.25} />}
-            </h4>
-            <p className="text-sm" style={{ ...body, color: C.ash }}>{s.d}</p>
-          </Wrapper>
-        );
-      })}
-    </div>
-  );
-}
-
 export function HomePage() {
   const onOrderClick = useOrderModal();
   const navigate = useNavigate();
@@ -366,7 +323,7 @@ export function HomePage() {
               <div className="flex items-center gap-2"><MapPin size={16} color={C.iconVivid} strokeWidth={2.25} /><span className="text-sm font-semibold tracking-wide uppercase" style={{ ...body, color: C.mint }}>Миколаїв та область</span></div>
               <div className="flex items-center gap-2"><ShieldCheck size={16} color={C.iconVivid} strokeWidth={2.25} /><span className="text-sm font-semibold tracking-wide uppercase" style={{ ...body, color: C.mint }}>5+ років досвіду в клінінгу</span></div>
             </div>
-            <h1 className="text-4xl sm:text-5xl leading-[1.08] mb-5" style={{ ...display, color: C.ink, fontWeight: 600 }}>Чистота, яку видно ще з порогу</h1>
+            <h1 className="text-4xl sm:text-5xl leading-[1.08] mb-5" style={{ ...display, color: C.ink, fontWeight: 700 }}>Чистота, яку видно ще з порогу</h1>
             <p className="text-lg mb-3" style={{ ...body, color: C.inkSoft }}>«чисто.» — клінінгова компанія в Миколаєві. Замовити прибирання квартири, будинку чи офісу можна за чітким чек-листом, з розрахунком ціни онлайн.</p>
           </div>
         </section>
@@ -374,20 +331,23 @@ export function HomePage() {
 
       <section className="max-w-6xl mx-auto px-5 sm:px-8 py-14" style={{ background: C.bg, ...dotPattern(C.mint, 0.06) }}>
         <div className="flex items-end justify-between mb-8">
-          <h2 className="text-3xl" style={{ ...display, color: C.ink, fontWeight: 600 }}>Що прибираємо</h2>
+          <h2 className="text-3xl" style={{ ...display, color: C.ink, fontWeight: 700 }}>Що прибираємо</h2>
           <span className="text-sm hidden sm:block" style={{ ...body, color: C.ash }}>натисніть на послугу — відкриється її сторінка</span>
         </div>
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
           {SERVICES.map((s) => {
             const Icon = s.icon;
             return (
-              <button key={s.id} onClick={() => navigate(s.id)} className="text-left p-6 rounded-xl group transition-transform hover:-translate-y-1" style={{ background: C.white }}>
+              <button key={s.id} onClick={() => navigate(s.id)} className="text-left rounded-xl group transition-transform hover:-translate-y-1" style={{ background: C.white, overflow: "hidden", display: "flex", flexDirection: "column", boxShadow: "0 10px 30px -18px rgba(6,26,32,0.35)" }}>
+                <img src={`/card-${s.id}.webp`} alt={`${s.name} у Миколаєві — клінінг «чисто.»`} loading="lazy" width="544" height="267" style={{ width: "100%", height: "auto", aspectRatio: "544 / 267", objectFit: "cover", display: "block" }} />
+                <div className="p-6" style={{ display: "flex", flexDirection: "column", flex: 1 }}>
                 <div className="flex items-center gap-3 mb-2">
                   <div className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: C.mint }}><Icon size={22} color={C.white} strokeWidth={2.25} /></div>
-                  <h3 className="text-xl" style={{ ...display, color: C.ink, fontWeight: 600 }}>{s.name}</h3>
+                  <h3 className="text-xl svc-title" style={{ ...display, color: C.ink, fontWeight: 700 }}>{s.name}</h3>
                 </div>
-                <p className="text-sm mb-4" style={{ ...body, color: C.ash }}>{s.desc}</p>
-                <div className="flex items-center justify-between"><span style={{ ...mono, color: C.inkSoft, fontSize: 13 }}>{s.priceOnRequest ? "ціна договірна" : `${s.rateMin}–${s.rateMax} ₴/${s.unit}`}</span><ChevronRight size={16} color={C.iconVivid} strokeWidth={2.25} className="group-hover:translate-x-1 transition-transform" /></div>
+                <p className="text-sm mb-4" style={{ ...body, color: C.ash, lineHeight: 1.55, flex: 1 }}>{s.desc}</p>
+                <div className="flex items-center justify-between"><span style={{ ...mono, color: C.ink, fontSize: 15, fontWeight: 700, background: C.lemonSoft, padding: "4px 10px", borderRadius: 999 }}>{s.priceOnRequest ? "ціна договірна" : `${s.rateMin}–${s.rateMax} ₴/${s.unit}`}</span><ChevronRight size={16} color={C.iconVivid} strokeWidth={2.25} className="group-hover:translate-x-1 transition-transform" /></div>
+                </div>
               </button>
             );
           })}
@@ -400,7 +360,7 @@ export function HomePage() {
       <SpringDivider />
 
       <section className="max-w-6xl mx-auto px-5 sm:px-8 py-14" style={{ background: C.bg, ...dotPattern(C.lemon, 0.06) }}>
-        <h2 className="text-3xl mb-2" style={{ ...display, color: C.ink, fontWeight: 600 }}>Працюємо у вашому районі</h2>
+        <h2 className="text-3xl mb-2" style={{ ...display, color: C.ink, fontWeight: 700 }}>Працюємо у вашому районі</h2>
         <p className="text-sm mb-6" style={{ ...body, color: C.ash }}>Виїжджаємо по всьому місту й найближчих передмістях</p>
         <div className="flex flex-wrap gap-2.5">{DISTRICTS.map((d) => <Chip key={d}>{d}</Chip>)}</div>
       </section>
@@ -707,7 +667,7 @@ export function GiftCertificateSection() {
           <div className="w-12 h-12 rounded-full flex items-center justify-center mb-5" style={{ background: C.lemon }}>
             <Gift size={22} color={C.ink} strokeWidth={2.25} />
           </div>
-          <h2 className="text-3xl mb-3" style={{ ...display, color: C.bg, fontWeight: 600 }}>Замовити подарунковий сертифікат</h2>
+          <h2 className="text-3xl mb-3" style={{ ...display, color: C.bg, fontWeight: 700 }}>Замовити подарунковий сертифікат</h2>
           <p className="text-sm mb-3" style={{ ...body, color: "#C7D6DE" }}>
             Подарунковий сертифікат на клінінг у Миколаєві — практичний подарунок близьким, батькам чи колегам:
             генеральне прибирання квартири, миття вікон або хімчистка меблів на обрану суму.
@@ -936,7 +896,7 @@ export function CtaBand() {
   return (
     <section id="zayavka-cta" className="py-16" style={{ background: C.lemon, ...dotPattern(C.ink, 0.06) }}>
       <div className="max-w-4xl mx-auto px-5 sm:px-8 text-center">
-        <h2 className="text-3xl sm:text-4xl mb-4" style={{ ...display, color: C.ink, fontWeight: 600 }}>Домовимось на найближчий день?</h2>
+        <h2 className="text-3xl sm:text-4xl mb-4" style={{ ...display, color: C.ink, fontWeight: 700 }}>Домовимось на найближчий день?</h2>
         <p className="text-base mb-7" style={{ ...body, color: C.inkSoft }}>Замовити клінінг у Миколаєві можна прямо зараз — залиште заявку, передзвонимо протягом 15 хвилин і узгодимо зручний час виїзду</p>
         <div className="flex flex-wrap gap-3 justify-center">
           <a href="https://t.me/chystomk" target="_blank" rel="noopener noreferrer" className="px-7 py-3.5 rounded-full text-sm font-semibold flex items-center gap-2" style={{ ...body, background: C.ink, color: C.bg }}><MessageCircle size={16} strokeWidth={2.25} /> Написати в Telegram</a>
@@ -953,9 +913,9 @@ export function Footer() {
       <div className="max-w-6xl mx-auto px-5 sm:px-8 flex flex-wrap items-center justify-between gap-4">
         <div className="flex items-center">
           <LogoMark size={30} />
-          <span className="text-lg tracking-tight" style={{ ...display, color: C.bg, fontWeight: 600 }}>чисто<span style={{ color: C.lemon }}>.</span></span>
+          <span className="text-lg" style={{ ...body, color: C.bg, fontWeight: 800, letterSpacing: "-0.02em", textTransform: "uppercase", marginLeft: 8 }}>чисто<span style={{ color: "#0EA8F7" }}>.</span></span>
         </div>
-        <p className="text-xs" style={{ ...body, color: C.ash }}>© 2026 «чисто.» — клінінгова служба у Миколаєві</p>
+        <p className="text-xs" style={{ ...body, color: C.mintSoft }}>© 2026 «чисто.» — клінінгова служба у Миколаєві</p>
         <div className="flex items-center gap-1.5 text-xs" style={{ ...body, color: C.mint }}><Clock size={14} strokeWidth={2.25} /> Пн–Нд, 08:00–21:00</div>
         <a href="mailto:chysto.mk@gmail.com" className="flex items-center gap-1.5 text-xs" style={{ ...body, color: C.mint }}><Mail size={14} strokeWidth={2.25} /> chysto.mk@gmail.com</a>
         <div className="flex items-center gap-1.5 text-xs" style={{ ...body, color: C.mint }}><ShieldCheck size={14} strokeWidth={2.25} /> Договір і акт виконаних робіт</div>
@@ -982,14 +942,14 @@ export function ServicePage({ serviceId }) {
         <div className="flex items-center gap-1.5 text-xs mb-6" style={{ ...body, color: heroMuted }}><span>Послуги</span><ChevronRight size={12} /><span style={{ color: heroText }}>{service.name}</span></div>
         <div className="grid lg:grid-cols-2 gap-10 items-start">
           <div className="min-w-0">
-            <h1 className="text-4xl sm:text-5xl leading-[1.08] mb-4" style={{ ...display, color: heroText, fontWeight: 600 }}>{service.name} у Миколаєві</h1>
+            <h1 className="text-4xl sm:text-5xl leading-[1.08] mb-4" style={{ ...display, color: heroText, fontWeight: 700 }}>{service.name} у Миколаєві</h1>
             <p className="text-lg mb-6" style={{ ...body, color: heroSoft }}>{details.intro}</p>
             <div className="flex flex-wrap gap-4 mb-8">
               <div className="flex items-center gap-2 text-sm" style={{ ...body, color: heroText }}><Clock size={16} color={heroIcon} strokeWidth={2.25} /> {service.priceOnRequest ? "ціна договірна" : `${service.rateMin}–${service.rateMax} ₴/${service.unit}`}</div>
               <div className="flex items-center gap-2 text-sm" style={{ ...body, color: heroText }}><MapPin size={16} color={heroIcon} strokeWidth={2.25} /> усі райони Миколаєва</div>
               <div className="flex items-center gap-2 text-sm" style={{ ...body, color: heroText }}><ShieldCheck size={16} color={heroIcon} strokeWidth={2.25} /> ціну підтверджує майстер на місці</div>
             </div>
-            <h2 className="text-xl mb-4" style={{ ...display, color: heroText, fontWeight: 600 }}>Що входить</h2>
+            <h2 className="text-xl mb-4" style={{ ...display, color: heroText, fontWeight: 700 }}>Що входить</h2>
             <div className="mb-8">
               {Array.isArray(details.checklist) && details.checklist.length > 0 && typeof details.checklist[0] === "object" ? (
                 <RoomChecklist rooms={details.checklist} />
@@ -999,7 +959,7 @@ export function ServicePage({ serviceId }) {
                 </div>
               )}
             </div>
-            <h2 className="text-xl mb-3" style={{ ...display, color: heroText, fontWeight: 600 }}>Райони обслуговування</h2>
+            <h2 className="text-xl mb-3" style={{ ...display, color: heroText, fontWeight: 700 }}>Райони обслуговування</h2>
             <div className="flex flex-wrap gap-2 mb-2">{DISTRICTS.map((d) => <Chip key={d}>{d}</Chip>)}</div>
           </div>
           <div className="lg:sticky lg:top-24 min-w-0">{service.priceOnRequest ? <PriceOnRequestCard /> : <ReceiptCalculator serviceId={service.id} />}</div>
@@ -1009,31 +969,31 @@ export function ServicePage({ serviceId }) {
 
       {WORK_PHOTOS[service.id] && (
         <section className="max-w-6xl mx-auto px-5 sm:px-8 pb-14">
-          <h2 className="text-3xl mb-2" style={{ ...display, color: C.ink, fontWeight: 600 }}>Наші роботи</h2>
+          <h2 className="text-3xl mb-2" style={{ ...display, color: C.ink, fontWeight: 700 }}>Наші роботи</h2>
           <p className="text-sm mb-6" style={{ ...body, color: C.ash }}>Реальні фото з виїздів команди «чисто.» — поповнюємо регулярно</p>
           <PhotoGallery photos={WORK_PHOTOS[service.id]} />
         </section>
       )}
 
       <section className="max-w-6xl mx-auto px-5 sm:px-8 py-14" style={{ background: C.bg, ...dotPattern(C.mint, 0.05) }}>
-        <h2 className="text-3xl mb-2" style={{ ...display, color: C.ink, fontWeight: 600 }}>Лайфхаки по темі</h2>
+        <h2 className="text-3xl mb-2" style={{ ...display, color: C.ink, fontWeight: 700 }}>Лайфхаки по темі</h2>
         <p className="text-sm mb-6" style={{ ...body, color: C.ash }}>Практичні поради — те, що зазвичай шукають перед замовленням</p>
         <LifehacksBlock items={details.lifehacks} />
       </section>
 
       <section className="max-w-6xl mx-auto px-5 sm:px-8 pb-14" style={{ background: C.bg, ...dotPattern(C.lemon, 0.05) }}>
-        <h2 className="text-3xl mb-2" style={{ ...display, color: C.ink, fontWeight: 600 }}>Статті по темі</h2>
+        <h2 className="text-3xl mb-2" style={{ ...display, color: C.ink, fontWeight: 700 }}>Статті по темі</h2>
         <p className="text-sm mb-6" style={{ ...body, color: C.ash }}>Матеріали блогу — саме вони підтягують довгі пошукові запити</p>
         <ArticlesBlock items={details.articles} onOpenArticle={navigate} />
       </section>
 
       <section className="max-w-4xl mx-auto px-5 sm:px-8 py-14" style={{ background: C.bg, ...dotPattern(C.lemon, 0.04) }}>
-        <h2 className="text-3xl mb-6" style={{ ...display, color: C.ink, fontWeight: 600 }}>Питання, які часто ставлять</h2>
+        <h2 className="text-3xl mb-6" style={{ ...display, color: C.ink, fontWeight: 700 }}>Питання, які часто ставлять</h2>
         <FaqAccordion items={faqItems} />
       </section>
 
       <section className="max-w-4xl mx-auto px-5 sm:px-8 pb-14">
-        <h2 className="text-xl mb-4" style={{ ...display, color: C.ink, fontWeight: 600 }}>Більше фото та відео</h2>
+        <h2 className="text-xl mb-4" style={{ ...display, color: C.ink, fontWeight: 700 }}>Більше фото та відео</h2>
         <SocialButtons />
       </section>
 
@@ -1058,11 +1018,11 @@ export function ArticlePage({ articleRoute }) {
           <ChevronRight size={12} />
           <span style={{ color: C.ink }}>Стаття</span>
         </div>
-        <h1 className="text-3xl sm:text-4xl leading-[1.15] mb-6" style={{ ...display, color: C.ink, fontWeight: 600 }}>{article.title}</h1>
+        <h1 className="text-3xl sm:text-4xl leading-[1.15] mb-6" style={{ ...display, color: C.ink, fontWeight: 700 }}>{article.title}</h1>
         <div className="flex flex-col gap-4">
           {article.body.map((block, i) =>
             block.startsWith("## ") ? (
-              <h2 key={i} className="text-xl mt-4" style={{ ...display, color: C.ink, fontWeight: 600 }}>{block.replace("## ", "")}</h2>
+              <h2 key={i} className="text-xl mt-4" style={{ ...display, color: C.ink, fontWeight: 700 }}>{block.replace("## ", "")}</h2>
             ) : (
               <p key={i} className="text-base leading-relaxed" style={{ ...body, color: C.inkSoft }}>{block}</p>
             )
